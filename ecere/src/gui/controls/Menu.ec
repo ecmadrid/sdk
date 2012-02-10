@@ -174,7 +174,8 @@ public:
       set
       {
          bitmaps[0] = value;
-         bitmaps[1] = BitmapResource { fileName = value.fileName, monochrome = true };
+         //bitmaps[1] = BitmapResource { fileName = value.fileName, monochrome = true };
+         bitmaps[1] = BitmapResource { fileName = value.fileName };
          bitmaps[2] = BitmapResource { fileName = value.fileName, grayed = true };
       }
    };
@@ -1089,9 +1090,11 @@ public class PopupMenu : Window
                   else
                   {
                      surface.SetForeground(Color { 85, 85, 85 });
-                     surface.HLine(x + 2, x + rw - 5, y + (DIVIDER_HEIGHT) / 2);
+                     //surface.HLine(x + 2, x + rw - 5, y + (DIVIDER_HEIGHT) / 2);
+                     surface.HLine(x + bitmapOffset + 15, x + rw - 13, y + (DIVIDER_HEIGHT) / 2);
                      surface.SetForeground(white);
-                     surface.HLine(x + 2, x + rw - 5, y + (DIVIDER_HEIGHT) / 2 + 1);
+                     //surface.HLine(x + 2, x + rw - 5, y + (DIVIDER_HEIGHT) / 2 + 1);
+                     surface.HLine(x + bitmapOffset + 15, x + rw - 13, y + (DIVIDER_HEIGHT) / 2 + 1);
                   }
                }
             }
@@ -1118,7 +1121,7 @@ public class PopupMenu : Window
                   {
                      Bitmap icon = bitmap.bitmap;
                      if(icon)
-                        surface.Blit(icon, x + 3, y + (rh - icon.height)/2, 0,0, icon.width, icon.height);
+                        surface.Blit(icon, x + 5, y + (rh - icon.height)/2, 0,0, icon.width, icon.height);
                   }
 
                   if(item.bold)
@@ -1129,13 +1132,36 @@ public class PopupMenu : Window
                   if(ITEM_DISABLED(item) && selected == ptr)
                   {
                      surface.SetForeground(activeBorder);
-                     Interface::WriteKeyedText(surface, x + bitmapOffset + 5,
+                     if(!isMenuBar)
+                     {
+                        Interface::WriteKeyedText(surface, x + bitmapOffset + 20,
                         textY, ITEM_TEXT(item), ITEM_HOTKEY(item));
+                     }
+                     else
+                     {
+                        Interface::WriteKeyedText(surface, x + bitmapOffset + 5,
+                        textY, ITEM_TEXT(item), ITEM_HOTKEY(item));
+                     }
+                  }
+                  else if(!isMenuBar)
+                  {
+                     Interface::WriteKeyedTextDisabled(surface, x + bitmapOffset + 20,
+                     textY, ITEM_TEXT(item), ITEM_HOTKEY(item), ITEM_DISABLED(item));
                   }
                   else
+                  {
                      Interface::WriteKeyedTextDisabled(surface, x + bitmapOffset + 5,
-                        textY, ITEM_TEXT(item), ITEM_HOTKEY(item), ITEM_DISABLED(item));
-                  surface.SetForeground(foreground);
+                     textY, ITEM_TEXT(item), ITEM_HOTKEY(item), ITEM_DISABLED(item));
+                  }
+                  /* A nice vertical separation line */
+                  if(!isMenuBar)
+                  {
+                     surface.SetForeground(Color { 85, 85, 85 });
+                     surface.DrawLine(x + bitmapOffset + 13, clientArea.top, x + bitmapOffset + 13, clientArea.bottom);
+                     surface.SetForeground(white);
+                     surface.DrawLine(x + bitmapOffset + 14, clientArea.top, x + bitmapOffset + 14, clientArea.bottom);
+                     surface.SetForeground(foreground);
+                  }
                   if(item.checked)
                   {
                      surface.DrawLine(x+5, y+9, x+8,y+12);
@@ -1563,11 +1589,23 @@ public class PopupMenu : Window
 
             totalHeight += height;
 
+            /*
             if(item.bitmaps[0]) AddResource(item.bitmaps[0]);
             if(item.bitmaps[1]) AddResource(item.bitmaps[1]);
             if(item.bitmaps[2]) AddResource(item.bitmaps[2]);
+            */
+
+            if (item.bitmaps[0])
+            {
+               item.bitmaps[1] = BitmapResource { fileName = item.bitmaps[0].fileName };
+               item.bitmaps[2] = BitmapResource { fileName = item.bitmaps[0].fileName, grayed = true };
+               AddResource(item.bitmaps[0]);
+               AddResource(item.bitmaps[1]);
+               AddResource(item.bitmaps[2]);
+            }
          }
-         maxW += 24;
+         //maxW += 24;
+         maxW += 32;
          if(menu.text)
          {
             FontExtent(display, font,menu.text,strlen(menu.text),&width, &height);
