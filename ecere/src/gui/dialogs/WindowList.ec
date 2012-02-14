@@ -25,7 +25,10 @@ private:
 
       bool NotifyClicked(Button button, int x, int y, Modifiers mods)
       {
-         Destroy(listBox.GetTag());
+         if (listBox.currentRow > 0)
+            Destroy(listBox.GetTag());
+         else
+            Destroy(0);
          return true;
       }
    };
